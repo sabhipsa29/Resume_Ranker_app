@@ -300,34 +300,34 @@ def main(job_description=None, candidates=None):
 
 
 
-st.title("Resume Ranker")
 
-st.header("Job Description")
-Job_Description = st.text_area("Enter the job description")
-
-st.header("Upload Resumes")
-uploaded_files =  st.file_uploader("Upload files",type =["pdf","jsonl","json","txt"],accept_multiple_files=True)
-
+st.markdown("""<style>
+.stApp{background:#0d0014;color:#e9d8ff;}
+h1{color:#c084fc;text-align:center;}
+.stTextArea textarea,[data-testid="stFileUploaderDropzone"]{background:#1a0b2e;border:1px solid #7c3aed;color:#e9d8ff;}
+.stButton>button,.stDownloadButton>button{background:#7c3aed;color:white;border:none;border-radius:8px;}
+.stButton>button:hover,.stDownloadButton>button:hover{background:#a855f7;}
+[data-testid="stDataFrame"]{border:1px solid #7c3aed;border-radius:8px;}
+</style>""", unsafe_allow_html=True)
+ 
+st.markdown("<h1>🔮 Resume Ranker</h1>", unsafe_allow_html=True)
+st.caption("Paste a JD, drop in resumes, get your best matches ✨")
+ 
+Job_Description = st.text_area("📋 Job Description", value=JOB_DESCRIPTION, height=200)
+uploaded_files = st.file_uploader("📂 Upload Resumes (.jsonl/.json/.txt)", type=["jsonl","json","txt"], accept_multiple_files=True)
+ 
 if uploaded_files and Job_Description:
-
-    candidates = [ ]
-
+    candidates = []
     for file in uploaded_files:
         candidates.extend(load_candidates(file))
-        
+ 
     if not candidates:
         st.warning("No candidates could be parsed from the uploaded files.")
     else:
-        st.header("Ranking Resumes")
-        with st.spinner(f"Scoring {len(candidates)} candidates..."):
+        with st.spinner(f"✨ Scoring {len(candidates)} candidates..."):
             results = main(Job_Description, candidates)
-
+        st.success(f"Ranked {len(results)} candidates!")
         st.dataframe(results, use_container_width=True, height=480)
-
-        csv_bytes = results.to_csv(index=False).encode("utf-8")
-        st.download_button(
-            "Download results as CSV",
-            data=csv_bytes,
-            file_name="ranked_candidates.csv",
-            mime="text/csv",)
-  
+        st.download_button("⬇️ Download CSV", results.to_csv(index=False).encode("utf-8"),
+                            "ranked_candidates.csv", "text/csv")
+ 
